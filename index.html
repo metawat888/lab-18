@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard กฎทรงมวล (Law of Conservation of Mass)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Sarabun & Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Prompt', 'Sarabun', sans-serif;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-2 flex flex-col md:flex-row justify-between items-center gap-2">
+            <div class="flex items-center space-x-2">
+                <div class="bg-white text-blue-600 p-1.5 rounded-lg shadow text-base font-bold flex items-center justify-center w-8 h-8">
+                    <i class="fa-solid fa-flask-vial"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm md:text-base font-bold tracking-tight">กฎทรงมวล (Law of Conservation of Mass)</h1>
+                    <p class="text-[10px] text-blue-100">มวลสารตั้งต้นก่อนทำ (ซ้าย) = มวลผลิตภัณฑ์หลังทำ (ขวา)</p>
+                </div>
+            </div>
+            
+            <div class="bg-blue-700/80 px-3 py-1 rounded-lg border border-blue-500/40 text-[11px] text-blue-50 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-amber-300"></i>
+                <span>ระบบปิด: มวลรวมไม่เปลี่ยนแปลง (20 ปฏิกิริยาในชีวิตประจำวัน)</span>
+            </div>
+
+            <div class="flex bg-blue-700/60 p-1 rounded-lg border border-blue-500/50 text-xs">
+                <button onclick="switchTab('simulator')" id="btn-simulator" class="px-3 py-1 rounded font-medium transition-all bg-white text-blue-700 shadow-sm text-xs">
+                    <i class="fa-solid fa-scale-balanced mr-1"></i> จำลองชั่งมวล
+                </button>
+                <button onclick="switchTab('reactions')" id="btn-reactions" class="px-3 py-1 rounded font-medium transition-all text-blue-100 hover:text-white text-xs">
+                    <i class="fa-solid fa-atom mr-1"></i> ปฏิกิริยา
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- SIMULATOR TAB -->
+        <div id="tab-simulator" class="space-y-6">
+            
+            <!-- Reaction Selector Buttons (Compact Scrollable Box for 20 Reactions) -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col gap-3">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1.5 rounded-xl">เลือกปฏิกิริยาในชีวิตประจำวัน (ที่ดุลแล้ว)</span>
+                        <span class="text-xs text-slate-500">สัดส่วนโมเลกุลถูกต้องตามหลักเคมี (มวลซ้าย = มวลขวา)</span>
+                    </div>
+                </div>
+                <!-- Compact scrollable container -->
+                <div class="max-h-36 overflow-y-auto pr-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2" id="reaction-buttons-container">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Main Layout: Left = Reactants (ก่อนทำ), Right = Products (หลังทำ) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- LEFT SIDE: Reactants (ก่อนทำปฏิกิริยา) -->
+                <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-md border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block mr-2"></span>
+                            สารตั้งต้น (Reactants) - ก่อนทำ
+                        </h3>
+                        <span class="text-xs bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-full">ฝั่งซ้าย</span>
+                    </div>
+
+                    <!-- Component details list -->
+                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1.5" id="reactants-detail-list">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <!-- Beaker sitting on Top Digital Scale Platform -->
+                    <div class="bg-gradient-to-b from-slate-100 to-slate-200 border-2 border-slate-300 rounded-3xl p-5 flex flex-col items-center relative shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.8)]">
+                        <span class="absolute top-3 left-4 text-[10px] font-bold text-slate-500 uppercase tracking-wide">มวลรวมก่อนทำ (Reactants Mass)</span>
+                        
+                        <!-- Beaker Container with 3D Realistic Look -->
+                        <div class="h-64 w-full flex items-center justify-center relative mt-4">
+                            <!-- Realistic 3D Glass Beaker -->
+                            <div class="w-56 h-56 border-[4px] border-slate-300 border-t-2 rounded-b-[2.5rem] rounded-t-lg relative bg-gradient-to-r from-white/40 via-slate-100/30 to-white/10 flex flex-col justify-end items-center pb-4 overflow-hidden shadow-[inset_0_-15px_30px_rgba(0,0,0,0.08),0_15px_25px_rgba(0,0,0,0.15)] backdrop-blur-[3px]">
+                                <!-- Beaker Top Rim with 3D Bevel -->
+                                <div class="absolute -top-[5px] left-[-4px] right-[-4px] h-[8px] rounded-[50%] border-[3px] border-slate-400 bg-gradient-to-b from-white to-slate-200 shadow-md z-20"></div>
+                                <!-- Volume Calibration Markings -->
+                                <div class="absolute right-4 top-12 bottom-8 w-3 flex flex-col justify-between opacity-40 pointer-events-none z-10">
+                                    <div class="w-full h-0.5 bg-slate-500"></div>
+                                    <div class="w-2/3 h-0.5 bg-slate-500"></div>
+                                    <div class="w-full h-0.5 bg-slate-500"></div>
+                                    <div class="w-2/3 h-0.5 bg-slate-500"></div>
+                                    <div class="w-full h-0.5 bg-slate-500"></div>
+                                </div>
+                                <!-- 3D Glass Surface Highlight / Specular Reflection -->
+                                <div class="absolute top-2 left-2 w-6 h-48 bg-gradient-to-r from-white/70 via-white/20 to-transparent rounded-full blur-[1px] z-10 pointer-events-none"></div>
+                                
+                                <div class="absolute inset-0 bg-slate-200/30 w-full h-3/4 bottom-0 z-0"></div>
+                                <div class="relative z-10 flex flex-wrap justify-center items-center gap-2.5 p-4 max-h-full overflow-y-auto" id="reactants-visual">
+                                    <!-- Injected molecular structure graphics -->
+                                </div>
+                                <span class="absolute top-5 left-4 text-[10px] font-bold text-slate-600 bg-white/90 px-2 py-0.5 rounded-full shadow-sm z-20 border border-slate-200">สารตั้งต้น</span>
+                            </div>
+                        </div>
+
+                        <!-- 3D Realistic Blue Digital Scale -->
+                        <div class="w-full max-w-xs flex flex-col items-center mt-2">
+                            <!-- Scale Plate Tray with 3D Bevel & Metallic Sheen -->
+                            <div class="w-full h-5 bg-gradient-to-b from-slate-100 via-slate-200 to-slate-300 border border-slate-400 rounded-t-xl shadow-[0_4px_6px_rgba(0,0,0,0.1)] relative z-20"></div>
+                            <!-- Scale Joint / Neck with 3D Depth -->
+                            <div class="w-1/2 h-2.5 bg-gradient-to-b from-sky-600 to-sky-700 z-10 shadow-inner"></div>
+                            <div class="w-3/5 h-2 bg-gradient-to-b from-sky-500 to-sky-600 z-10"></div>
+
+                            <!-- Scale Main Blue Body with 3D Curved Trapezoidal Look & Lighting Gradient -->
+                            <div class="w-full bg-gradient-to-b from-sky-400 via-blue-500 to-blue-700 border-2 border-blue-600 rounded-2xl p-4 shadow-[0_15px_30px_rgba(0,0,0,0.25),inset_0_2px_4px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center relative z-20">
+                                <!-- Centered 3D LCD Display Screen -->
+                                <div class="w-4/5 bg-gradient-to-b from-slate-100 to-slate-200 border-4 border-slate-300 rounded-xl py-2 px-4 shadow-[inset_0_4px_8px_rgba(0,0,0,0.15)] text-center">
+                                    <div class="font-mono text-2xl md:text-3xl font-extrabold text-slate-800 tracking-wider flex items-center justify-center drop-shadow-sm">
+                                        <span id="mass-reactants">80.00</span> <span class="text-sm text-slate-600 ml-1.5 font-sans font-bold">g</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Rubber Feet with 3D Drop Shadow -->
+                            <div class="w-5/6 flex justify-between px-6 -mt-1">
+                                <div class="w-8 h-2.5 bg-slate-700 rounded-b-lg shadow-md"></div>
+                                <div class="w-8 h-2.5 bg-slate-700 rounded-b-lg shadow-md"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- CENTER ARROW & EQUATION -->
+                <div class="lg:col-span-2 flex flex-col items-center justify-center py-6 space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center shadow-[0_10px_20px_rgba(37,99,235,0.4)] text-2xl font-bold animate-pulse border-2 border-white">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-xs font-bold bg-slate-200 text-slate-700 px-3.5 py-1.5 rounded-full uppercase shadow-sm">กฎทรงมวล</span>
+                    </div>
+                    <div class="bg-slate-900 text-white text-xs p-3.5 rounded-2xl text-center font-mono w-full shadow-lg border border-slate-800">
+                        <div class="text-blue-400 font-bold mb-1">สมการเคมี (ที่ดุลแล้ว)</div>
+                        <div id="chem-equation" class="text-[11px] leading-relaxed font-bold">1CH₄ + 2O₂ ➔ 1CO₂ + 2H₂O</div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 text-blue-900 text-[11px] p-3 rounded-2xl text-center w-full shadow-sm" id="daily-application-badge">
+                        <span class="font-bold block mb-0.5 text-blue-700"><i class="fa-solid fa-lightbulb mr-1"></i> ประโยชน์ในชีวิตประจำวัน:</span>
+                        ชดเชยการใช้พลังงาน แก๊สปรุงอาหาร
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDE: Products (หลังทำปฏิกิริยา) -->
+                <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.06)] border border-slate-200/80 space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="w-3.5 h-3.5 rounded-full bg-indigo-500 inline-block mr-2 shadow-sm"></span>
+                            ผลิตภัณฑ์ (Products) - หลังทำ
+                        </h3>
+                        <span class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-full border border-indigo-100">ฝั่งขวา</span>
+                    </div>
+
+                    <!-- Component details list -->
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1.5" id="products-detail-list">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <!-- Beaker sitting on Top Digital Scale Platform -->
+                    <div class="bg-gradient-to-b from-slate-100 to-slate-200 border-2 border-slate-300 rounded-3xl p-5 flex flex-col items-center relative shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),inset_0_2px_4px_rgba(255,255,255,0.8)]">
+                        <span class="absolute top-3 left-4 text-[10px] font-bold text-slate-500 uppercase tracking-wide">มวลรวมหลังทำ (Products Mass)</span>
+                        
+                        <!-- Beaker Container with 3D Realistic Look -->
+                        <div class="h-64 w-full flex items-center justify-center relative mt-4">
+                            <!-- Realistic 3D Glass Beaker -->
+                            <div class="w-56 h-56 border-[4px] border-slate-300 border-t-2 rounded-b-[2.5rem] rounded-t-lg relative bg-gradient-to-r from-white/40 via-slate-100/30 to-white/10 flex flex-col justify-end items-center pb-4 overflow-hidden shadow-[inset_0_-15px_30px_rgba(0,0,0,0.08),0_15px_25px_rgba(0,0,0,0.15)] backdrop-blur-[3px]">
+                                <!-- Beaker Top Rim with 3D Bevel -->
+                                <div class="absolute -top-[5px] left-[-4px] right-[-4px] h-[8px] rounded-[50%] border-[3px] border-slate-400 bg-gradient-to-b from-white to-slate-200 shadow-md z-20"></div>
+                                <!-- Volume Calibration Markings -->
+                                <div class="absolute right-4 top-12 bottom-8 w-3 flex flex-col justify-between opacity-40 pointer-events-none z-10">
+                                    <div class="w-full h-0.5 bg-slate-500"></div>
+                                    <div class="w-2/3 h-0.5 bg-slate-500"></div>
+                                    <div class="w-full h-0.5 bg-slate-500"></div>
+                                    <div class="w-2/3 h-0.5 bg-slate-500"></div>
+                                    <div class="w-full h-0.5 bg-slate-500"></div>
+                                </div>
+                                <!-- 3D Glass Surface Highlight / Specular Reflection -->
+                                <div class="absolute top-2 left-2 w-6 h-48 bg-gradient-to-r from-white/70 via-white/20 to-transparent rounded-full blur-[1px] z-10 pointer-events-none"></div>
+                                
+                                <div class="absolute inset-0 bg-slate-200/30 w-full h-3/4 bottom-0 z-0"></div>
+                                <div class="relative z-10 flex flex-wrap justify-center items-center gap-2.5 p-4 max-h-full overflow-y-auto" id="products-visual">
+                                    <!-- Injected molecular structure graphics -->
+                                </div>
+                                <span class="absolute top-5 left-4 text-[10px] font-bold text-slate-600 bg-white/90 px-2 py-0.5 rounded-full shadow-sm z-20 border border-slate-200">ผลิตภัณฑ์</span>
+                            </div>
+                        </div>
+
+                        <!-- 3D Realistic Blue Digital Scale -->
+                        <div class="w-full max-w-xs flex flex-col items-center mt-2">
+                            <!-- Scale Plate Tray with 3D Bevel & Metallic Sheen -->
+                            <div class="w-full h-5 bg-gradient-to-b from-slate-100 via-slate-200 to-slate-300 border border-slate-400 rounded-t-xl shadow-[0_4px_6px_rgba(0,0,0,0.1)] relative z-20"></div>
+                            <!-- Scale Joint / Neck with 3D Depth -->
+                            <div class="w-1/2 h-2.5 bg-gradient-to-b from-sky-600 to-sky-700 z-10 shadow-inner"></div>
+                            <div class="w-3/5 h-2 bg-gradient-to-b from-sky-500 to-sky-600 z-10"></div>
+
+                            <!-- Scale Main Blue Body with 3D Curved Trapezoidal Look & Lighting Gradient -->
+                            <div class="w-full bg-gradient-to-b from-sky-400 via-blue-500 to-blue-700 border-2 border-blue-600 rounded-2xl p-4 shadow-[0_15px_30px_rgba(0,0,0,0.25),inset_0_2px_4px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center relative z-20">
+                                <!-- Centered 3D LCD Display Screen -->
+                                <div class="w-4/5 bg-gradient-to-b from-slate-100 to-slate-200 border-4 border-slate-300 rounded-xl py-2 px-4 shadow-[inset_0_4px_8px_rgba(0,0,0,0.15)] text-center">
+                                    <div class="font-mono text-2xl md:text-3xl font-extrabold text-slate-800 tracking-wider flex items-center justify-center drop-shadow-sm">
+                                        <span id="mass-products">80.00</span> <span class="text-sm text-slate-600 ml-1.5 font-sans font-bold">g</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Rubber Feet with 3D Drop Shadow -->
+                            <div class="w-5/6 flex justify-between px-6 -mt-1">
+                                <div class="w-8 h-2.5 bg-slate-700 rounded-b-lg shadow-md"></div>
+                                <div class="w-8 h-2.5 bg-slate-700 rounded-b-lg shadow-md"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Summary box -->
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center">
+                <p class="text-sm font-bold text-blue-800" id="summary-text">
+                    ✅ มวลสารตั้งต้นรวม (80 กรัม) = มวลผลิตภัณฑ์รวม (80 กรัม) ระบบปิดมีความสมดุลสมบูรณ์ตามกฎทรงมวล
+                </p>
+            </div>
+        </div>
+
+        <!-- REACTIONS TAB -->
+        <div id="tab-reactions" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-slate-200">
+                <div class="max-w-2xl mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">20 ปฏิกิริยาเคมีในชีวิตประจำวัน (ที่ดุลสมการแล้ว)</h2>
+                    <p class="text-slate-600 text-sm">คลิกเพื่อดูรายละเอียดสัดส่วนสารตั้งต้นและประโยชน์ในชีวิตประจำวัน</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="reactions-grid-container">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="mt-8 bg-blue-50 border border-blue-200 rounded-2xl p-6" id="reaction-detail-box">
+                    <h3 class="font-bold text-blue-900 text-base mb-2" id="detail-title">1. การเผาไหม้มีเทน</h3>
+                    <p class="text-sm text-blue-800 leading-relaxed mb-2" id="detail-desc">ฝั่งซ้าย (สารตั้งต้น): มีเทน 1 โมเลกุล (16g) + ออกซิเจน 2 โมเลกุล (64g) รวมเป็น 80 กรัม | ฝั่งขวา (ผลิตภัณฑ์): คาร์บอนไดออกไซด์ 1 โมเลกุล (44g) + ไอน้ำ 2 โมเลกุล (36g) รวมเป็น 80 กรัม ซึ่งเท่ากันพอดีตามกฎทรงมวล</p>
+                    <p class="text-xs font-bold text-blue-700 bg-white/70 p-3 rounded-xl border border-blue-200" id="detail-app">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> ประโยชน์: ใช้เป็นเชื้อเพลิงหุงต้มในครัวเรือน
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto py-3 text-center text-xs text-slate-500">
+        <p>Dashboard กฎทรงมวล (Law of Conservation of Mass) • สารตั้งต้น (ซ้าย) ➔ ผลิตภัณฑ์ (ขวา)</p>
+    </footer>
+
+    <script>
+        // 20 Balanced Everyday Chemical Reactions Database
+        const reactions = [
+            {
+                name: "การเผาไหม้มีเทน",
+                formula: "1CH₄ + 2O₂ ➔ 1CO₂ + 2H₂O",
+                application: "ใช้เป็นเชื้อเพลิงหุงต้มแก๊สธรรมชาติในครัวเรือน",
+                reactants: [
+                    { name: "มีเทน (CH₄)", count: 1, unitWeight: 16, tag: "CH₄", bg: "bg-slate-800", struct: "C(H)₄" },
+                    { name: "ออกซิเจน (2O₂)", count: 2, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                products: [
+                    { name: "คาร์บอนไดออกไซด์ (CO₂)", count: 1, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" },
+                    { name: "น้ำ (2H₂O)", count: 2, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                totalMass: 80,
+                desc: "สารตั้งต้นมีเทน 1 โมเลกุล (16g) และออกซิเจน 2 โมเลกุล (64g) รวม 80 กรัม ทำปฏิกิริยาเผาไหม้ได้คาร์บอนไดออกไซด์ 1 โมเลกุล (44g) และไอน้ำ 2 โมเลกุล (36g) รวม 80 กรัม"
+            },
+            {
+                name: "การสังเคราะห์น้ำ",
+                formula: "2H₂ + 1O₂ ➔ 2H₂O",
+                application: "แหล่งกำเนิดพลังงานสะอาดและกระบวนการเกิดน้ำในเซลล์เชื้อเพลิง",
+                reactants: [
+                    { name: "ไฮโดรเจน (2H₂)", count: 2, unitWeight: 2, tag: "H₂", bg: "bg-blue-600", struct: "H-H" },
+                    { name: "ออกซิเจน (O₂)", count: 1, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                products: [
+                    { name: "น้ำ (2H₂O)", count: 2, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                totalMass: 36,
+                desc: "สารตั้งต้นไฮโดรเจน 2 โมเลกุล (4g) และออกซิเจน 1 โมเลกุล (32g) รวม 36 กรัม เกิดปฏิกิริยารวมตัวได้น้ำ 2 โมเลกุล (36g) พอดี"
+            },
+            {
+                name: "การสลายตัวหินปูน",
+                formula: "1CaCO₃ ➔ 1CaO + 1CO₂",
+                application: "การผลิตปูนขาวสำหรับก่อสร้างและปรับสภาพดินเปรี้ยว",
+                reactants: [
+                    { name: "แคลเซียมคาร์บอเนต (CaCO₃)", count: 1, unitWeight: 100, tag: "CaCO₃", bg: "bg-amber-600", struct: "Ca[CO₃]" }
+                ],
+                products: [
+                    { name: "แคลเซียมออกไซด์ (CaO)", count: 1, unitWeight: 56, tag: "CaO", bg: "bg-amber-500", struct: "Ca=O" },
+                    { name: "คาร์บอนไดออกไซด์ (CO₂)", count: 1, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" }
+                ],
+                totalMass: 100,
+                desc: "ให้ความร้อนแก่หินปูน 1 โมเลกุล (100g) สลายตัวได้ปูนซีเมนต์ดิบ/ปูนขาว 1 โมเลกุล (56g) และแก๊สคาร์บอนไดออกไซด์ 1 โมเลกุล (44g) รวม 100 กรัม"
+            },
+            {
+                name: "การสังเคราะห์ด้วยแสง",
+                formula: "6CO₂ + 6H₂O ➔ 1C₆H₁₂O₆ + 6O₂",
+                application: "กระบวนการสร้างอาหารของพืชและผลิตออกซิเจนให้สิ่งมีชีวิตหายใจ",
+                reactants: [
+                    { name: "คาร์บอนไดออกไซด์ (6CO₂)", count: 6, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" },
+                    { name: "น้ำ (6H₂O)", count: 6, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                products: [
+                    { name: "กลูโคส (C₆H₁₂O₆)", count: 1, unitWeight: 180, tag: "C₆H₁₂O₆", bg: "bg-purple-600", struct: "C₆H₁₂O₆ (Ring)" },
+                    { name: "ออกซิเจน (6O₂)", count: 6, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                totalMass: 372,
+                desc: "พืชใช้คาร์บอนไดออกไซด์ 6 โมเลกุล (264g) และน้ำ 6 โมเลกุล (108g) รวม 372 กรัม สร้างน้ำตาลกลูโคส 1 โมเลกุล (180g) และแก๊สออกซิเจน 6 โมเลกุล (192g) รวม 372 กรัม"
+            },
+            {
+                name: "การเกิดสนิมเหล็ก",
+                formula: "4Fe + 3O₂ ➔ 2Fe₂O₃",
+                application: "การผุกร่อนของโครงสร้างเหล็ก สะพาน และยานพาหนะ",
+                reactants: [
+                    { name: "เหล็ก (4Fe)", count: 4, unitWeight: 56, tag: "Fe", bg: "bg-stone-600", struct: "Fe-Crystal" },
+                    { name: "ออกซิเจน (3O₂)", count: 3, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                products: [
+                    { name: "สนิมเหล็ก (2Fe₂O₃)", count: 2, unitWeight: 160, tag: "Fe₂O₃", bg: "bg-amber-700", struct: "Fe₂O₃ Lattice" }
+                ],
+                totalMass: 320,
+                desc: "เหล็ก 4 อะตอม (224g) ทำปฏิกิริยากับออกซิเจน 3 โมเลกุล (96g) รวม 320 กรัม เกิดเป็นสนิมเหล็ก (เฟอร์ริกออกไซด์) 2 โมเลกุล (320g) น้ำหนักเท่าเดิม"
+            },
+            {
+                name: "การหมักแอลกอฮอล์",
+                formula: "1C₆H₁₂O₆ ➔ 2C₂H₅OH + 2CO₂",
+                application: "การทำขนมปัง (ยีสต์ฟู) และการผลิตเครื่องดื่มแอลกอฮอล์",
+                reactants: [
+                    { name: "กลูโคส (C₆H₁₂O₆)", count: 1, unitWeight: 180, tag: "C₆H₁₂O₆", bg: "bg-purple-600", struct: "C₆H₁₂O₆ (Ring)" }
+                ],
+                products: [
+                    { name: "เอทานอล (2C₂H₅OH)", count: 2, unitWeight: 46, tag: "C₂H₅OH", bg: "bg-teal-600", struct: "CH₃-CH₂-OH" },
+                    { name: "คาร์บอนไดออกไซด์ (2CO₂)", count: 2, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" }
+                ],
+                totalMass: 180,
+                desc: "น้ำตาลกลูโคส 1 โมเลกุล (180g) ถูกย่อยโดยยีสต์ ได้แอลกอฮอล์เอทานอล 2 โมเลกุล (92g) และแก๊สคาร์บอนไดออกไซด์ 2 โมเลกุล (88g) รวม 180 กรัมพอดี"
+            },
+            {
+                name: "การทำขนมปังฟู",
+                formula: "1NaHCO₃ + 1CH₃COOH ➔ 1CH₃COONa + 1H₂O + 1CO₂",
+                application: "ผงฟูหรือเบกกิ้งโซดากับน้ำส้มสายชู ทำให้เนื้อขนมปังฟูนุ่ม",
+                reactants: [
+                    { name: "โซเดียมไบคาร์บอเนต (NaHCO₃)", count: 1, unitWeight: 84, tag: "NaHCO₃", bg: "bg-blue-400", struct: "Na+[HCO₃]-" },
+                    { name: "กรดน้ำส้ม (CH₃COOH)", count: 1, unitWeight: 60, tag: "CH₃COOH", bg: "bg-orange-500", struct: "CH₃-COOH" }
+                ],
+                products: [
+                    { name: "โซเดียมอะซิเตต (CH₃COONa)", count: 1, unitWeight: 82, tag: "CH₃COONa", bg: "bg-indigo-600", struct: "CH₃-COONa" },
+                    { name: "น้ำ (H₂O)", count: 1, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" },
+                    { name: "คาร์บอนไดออกไซด์ (CO₂)", count: 1, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" }
+                ],
+                totalMass: 144,
+                desc: "เบกกิ้งโซดา (84g) ทำปฏิกิริยากับน้ำส้มสายชู (60g) รวม 144 กรัม ได้เกลือโซเดียมอะซิเตต (82g) น้ำ (18g) และแก๊ส CO₂ (44g) ช่วยให้ขนมฟู รวม 144 กรัม"
+            },
+            {
+                name: "การสะสะของกรดในกระเพาะ",
+                formula: "1Mg(OH)₂ + 2HCl ➔ 1MgCl₂ + 2H₂O",
+                application: "ยากลอยแก้วหรือยาลดกรดในกระเพาะอาหาร (Antacid)",
+                reactants: [
+                    { name: "แมกนีเซียมไฮดรอกไซด์ (Mg(OH)₂)", count: 1, unitWeight: 58, tag: "Mg(OH)₂", bg: "bg-pink-600", struct: "Mg(OH)₂" },
+                    { name: "กรดเกลือ (2HCl)", count: 2, unitWeight: 36.5, tag: "HCl", bg: "bg-rose-500", struct: "H-Cl" }
+                ],
+                products: [
+                    { name: "แมกนีเซียมคลอไรด์ (MgCl₂)", count: 1, unitWeight: 95, tag: "MgCl₂", bg: "bg-cyan-600", struct: "Mg²⁺[Cl⁻]₂" },
+                    { name: "น้ำ (2H₂O)", count: 2, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                totalMass: 131,
+                desc: "ยาลดกรด Mg(OH)₂ 1 โมเลกุล (58g) สะเทินกรดในกระเพาะ HCl 2 โมเลกุล (73g) รวม 131 กรัม ได้เกลือ MgCl₂ (95g) และน้ำ 2 โมเลกุล (36g) รวม 131 กรัม"
+            },
+            {
+                name: "การดับไฟด้วยน้ำส้มและโซดา",
+                formula: "2NaHCO₃ + 1H₂SO₄ ➔ 1Na₂SO₄ + 2H₂O + 2CO₂",
+                application: "หลักการทำงานของเครื่องดับเพลิงเคมีสูตรโฟม/แก๊ส CO₂",
+                reactants: [
+                    { name: "เบกกิ้งโซดา (2NaHCO₃)", count: 2, unitWeight: 84, tag: "NaHCO₃", bg: "bg-blue-400", struct: "Na+[HCO₃]-" },
+                    { name: "กรดซัลฟิวริก (H₂SO₄)", count: 1, unitWeight: 98, tag: "H₂SO₄", bg: "bg-yellow-600", struct: "H₂SO₄" }
+                ],
+                products: [
+                    { name: "โซเดียมซัลเฟต (Na₂SO₄)", count: 1, unitWeight: 142, tag: "Na₂SO₄", bg: "bg-violet-600", struct: "Na₂SO₄" },
+                    { name: "น้ำ (2H₂O)", count: 2, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" },
+                    { name: "คาร์บอนไดออกไซด์ (2CO₂)", count: 2, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" }
+                ],
+                totalMass: 266,
+                desc: "เบกกิ้งโซดา (168g) ทำปฏิกิริยากับกรด (98g) รวม 266 กรัม ผลิตแก๊ส CO₂ จำนวน 2 โมเลกุล (88g) ไปคลุมปิดกั้นออกซิเจนเพื่อดับไฟ รวมมวลหลังทำ 266 กรัม"
+            },
+            {
+                name: "การเผาไหม้แก๊สโพรเพน",
+                formula: "1C₃H₈ + 5O₂ ➔ 3CO₂ + 4H₂O",
+                application: "แก๊สกระป๋องปิคนิคและเชื้อเพลิงเตาแก๊สแคมป์ปิ้ง",
+                reactants: [
+                    { name: "โพรเพน (C₃H₈)", count: 1, unitWeight: 44, tag: "C₃H₈", bg: "bg-zinc-800", struct: "CH₃-CH₂-CH₃" },
+                    { name: "ออกซิเจน (5O₂)", count: 5, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                products: [
+                    { name: "คาร์บอนไดออกไซด์ (3CO₂)", count: 3, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" },
+                    { name: "ไอน้ำ (4H₂O)", count: 4, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                totalMass: 204,
+                desc: "แก๊สโพรเพนในกระป๋องปิคนิค 1 โมเลกุล (44g) ทำปฏิกิริยากับออกซิเจน 5 โมเลกุล (160g) รวม 204 กรัม ได้ CO₂ 3 โมเลกุล (132g) และไอน้ำ 4 โมเลกุล (72g) รวม 204 กรัม"
+            },
+            {
+                name: "การย่อยสลายน้ำตาลซูโครส",
+                formula: "1C₁₂H₂₂O₁₁ + 1H₂O ➔ 1C₆H₁₂O₆ + 1C₆H₁₂O₆",
+                application: "กระบวนการย่อยน้ำตาลทรายในระบบทางเดินอาหารให้เป็นกลูโคสและฟรักโตส",
+                reactants: [
+                    { name: "น้ำตาลทราย (C₁₂H₂₂O₁₁)", count: 1, unitWeight: 342, tag: "C₁₂H₂₂O₁₁", bg: "bg-amber-800", struct: "Disaccharide" },
+                    { name: "น้ำ (H₂O)", count: 1, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                products: [
+                    { name: "กลูโคส (C₆H₁₂O₆)", count: 1, unitWeight: 180, tag: "C₆H₁₂O₆", bg: "bg-purple-600", struct: "Glucose" },
+                    { name: "ฟรักโตส (C₆H₁₂O₆)", count: 1, unitWeight: 180, tag: "C₆H₁₂O₆", bg: "bg-indigo-500", struct: "Fructose" }
+                ],
+                totalMass: 360,
+                desc: "น้ำตาลซูโครส 342g ทำปฏิกิริยากับน้ำ 18g ได้กลูโคสและฟรักโตอย่างละ 1 โมเลกุล รวม 360 กรัม"
+            },
+            {
+                name: "การเกิดฝนกรด",
+                formula: "2SO₂ + 1O₂ + 2H₂O ➔ 2H₂SO₄",
+                application: "การเกิดกรดซัลฟิวริกในบรรยากาศจากโรงงานอุตสาหกรรม กลายเป็นฝนกรด",
+                reactants: [
+                    { name: "ซัลเฟอร์ไดออกไซด์ (2SO₂)", count: 2, unitWeight: 64, tag: "SO₂", bg: "bg-yellow-700", struct: "O=S=O" },
+                    { name: "ออกซิเจน (O₂)", count: 1, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" },
+                    { name: "น้ำ (2H₂O)", count: 2, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                products: [
+                    { name: "กรดซัลฟิวริก (2H₂SO₄)", count: 2, unitWeight: 98, tag: "H₂SO₄", bg: "bg-yellow-800", struct: "H₂SO₄" }
+                ],
+                totalMass: 196,
+                desc: "แก๊สพิษและไอน้ำในอากาศรวมตัวกันกลายเป็นฝนกรด มวลสารตั้งต้นและผลิตภัณฑ์รวม 196 กรัม"
+            },
+            {
+                name: "การผลิตปุ๋ยแอมโมเนีย",
+                formula: "1N₂ + 3H₂ ➔ 2NH₃",
+                application: "กระบวนการฮาเบอร์-บอช สำหรับผลิตปุ๋ยเคมีทางการเกษตร",
+                reactants: [
+                    { name: "ไนโตรเจน (N₂)", count: 1, unitWeight: 28, tag: "N₂", bg: "bg-blue-800", struct: "N≡N" },
+                    { name: "ไฮโดรเจน (3H₂)", count: 3, unitWeight: 2, tag: "H₂", bg: "bg-blue-600", struct: "H-H" }
+                ],
+                products: [
+                    { name: "แอมโมเนีย (2NH₃)", count: 2, unitWeight: 17, tag: "NH₃", bg: "bg-cyan-700", struct: "NH₃" }
+                ],
+                totalMass: 34,
+                desc: "ไนโตรเจน 28g และไฮโดรเจน 6g รวม 34g เกิดปฏิกิริยาได้แก๊สแอมโมเนีย 34 กรัม"
+            },
+            {
+                name: "การเผาไหม้แมกนีเซียม",
+                formula: "2Mg + 1O₂ ➔ 2MgO",
+                application: "การผลิตพลวดอกไม้เพลิง แสงไฟสว่างจ้า และการเชื่อมโลหะ",
+                reactants: [
+                    { name: "แมกนีเซียม (2Mg)", count: 2, unitWeight: 24.3, tag: "Mg", bg: "bg-slate-500", struct: "Mg Lattice" },
+                    { name: "ออกซิเจน (O₂)", count: 1, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                products: [
+                    { name: "แมกนีเซียมออกไซด์ (2MgO)", count: 2, unitWeight: 40.3, tag: "MgO", bg: "bg-zinc-400", struct: "Mg²⁺O²⁻" }
+                ],
+                totalMass: 80.6,
+                desc: "โลหะแมกนีเซียมเผาไหม้กับออกซิเจนได้ผงแมกนีเซียมออกไซด์สีขาว มวลรวม 80.6 กรัม"
+            },
+            {
+                name: "การแยกสลายน้ำด้วยไฟฟ้า",
+                formula: "2H₂O ➔ 2H₂ + 1O₂",
+                application: "การผลิตแก๊สไฮโดรเจนบริสุทธิ์เพื่อใช้เป็นพลังงานเซลล์เชื้อเพลิงสะอาด",
+                reactants: [
+                    { name: "น้ำ (2H₂O)", count: 2, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                products: [
+                    { name: "ไฮโดรเจน (2H₂)", count: 2, unitWeight: 2, tag: "H₂", bg: "bg-blue-600", struct: "H-H" },
+                    { name: "ออกซิเจน (O₂)", count: 1, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                totalMass: 36,
+                desc: "ใช้น้ำ 36g ผ่านกระแสไฟฟ้าสลายตัวได้แก๊สไฮโดรเจนและออกซิเจนรวม 36 กรัม"
+            },
+            {
+                name: "การเกิดหินงอกหินย้อย",
+                formula: "1CaCO₃ + 1H₂O + 1CO₂ ➔ 1Ca(HCO₃)₂",
+                application: "การละลายหินปูนในถ้ำธรรมชาติจนเกิดเป็นหินงอกหินย้อยอันงดงาม",
+                reactants: [
+                    { name: "แคลเซียมคาร์บอเนต (CaCO₃)", count: 1, unitWeight: 100, tag: "CaCO₃", bg: "bg-amber-600", struct: "Ca[CO₃]" },
+                    { name: "น้ำ (H₂O)", count: 1, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" },
+                    { name: "คาร์บอนไดออกไซด์ (CO₂)", count: 1, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" }
+                ],
+                products: [
+                    { name: "แคลเซียมไบคาร์บอเนต (Ca(HCO₃)₂)", count: 1, unitWeight: 162, tag: "Ca(HCO₃)₂", bg: "bg-amber-700", struct: "Ca(HCO₃)₂" }
+                ],
+                totalMass: 162,
+                desc: "หินปูนละลายในน้ำที่มี CO₂ ละลายอยู่ กลายเป็นสารละลายแคลเซียมไบคาร์บอเนต 162 กรัม"
+            },
+            {
+                name: "ปฏิกิริยาของโซเดียมกับน้ำ",
+                formula: "2Na + 2H₂O ➔ 2NaOH + 1H₂",
+                application: "การศึกษาโลหะอัลคาลิออกฤทธิ์รุนแรงและเกิดแก๊สไฮโดรเจนติดไฟได้",
+                reactants: [
+                    { name: "โซเดียม (2Na)", count: 2, unitWeight: 23, tag: "Na", bg: "bg-purple-700", struct: "Na Crystal" },
+                    { name: "น้ำ (2H₂O)", count: 2, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                products: [
+                    { name: "โซเดียมไฮดรอกไซด์ (2NaOH)", count: 2, unitWeight: 40, tag: "NaOH", bg: "bg-blue-700", struct: "Na⁺OH⁻" },
+                    { name: "ไฮโดรเจน (H₂)", count: 1, unitWeight: 2, tag: "H₂", bg: "bg-blue-600", struct: "H-H" }
+                ],
+                totalMass: 82,
+                desc: "โลหะโซเดียมทำปฏิกิริยากับน้ำได้โซเดียมไฮดรอกไซด์ (ด่าง) และแก๊สไฮโดรเจน มวลรวม 82 กรัม"
+            },
+            {
+                name: "การเกิดหินปูนจากปูนใส",
+                formula: "1Ca(OH)₂ + 1CO₂ ➔ 1CaCO₃ + 1H₂O",
+                application: "การทดสอบแก๊สคาร์บอนไดออกไซด์ด้วยน้ำปูนใสจนขุ่นขาว",
+                reactants: [
+                    { name: "แคลเซียมไฮดรอกไซด์ (Ca(OH)₂)", count: 1, unitWeight: 74, tag: "Ca(OH)₂", bg: "bg-amber-500", struct: "Ca(OH)₂" },
+                    { name: "คาร์บอนไดออกไซด์ (CO₂)", count: 1, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" }
+                ],
+                products: [
+                    { name: "แคลเซียมคาร์บอเนต (CaCO₃)", count: 1, unitWeight: 100, tag: "CaCO₃", bg: "bg-amber-600", struct: "Ca[CO₃]" },
+                    { name: "น้ำ (H₂O)", count: 1, unitWeight: 18, tag: "H₂O", bg: "bg-blue-500", struct: "H-O-H" }
+                ],
+                totalMass: 118,
+                desc: "เป่าลมหายใจ (มี CO₂) ลงในน้ำปูนใส เกิดตะกอนหินปูนขุ่นขาวและน้ำ มวลรวม 118 กรัม"
+            },
+            {
+                name: "การเผาไหม้ซัลเฟอร์",
+                formula: "1S + 1O₂ ➔ 1SO₂",
+                application: "กระบวนการผลิตกรดซัลฟิวริกและสารฟอกขาวในอุตสาหกรรม",
+                reactants: [
+                    { name: "กำมะถัน (S)", count: 1, unitWeight: 32, tag: "S", bg: "bg-yellow-500", struct: "S₈ Ring" },
+                    { name: "ออกซิเจน (O₂)", count: 1, unitWeight: 32, tag: "O₂", bg: "bg-red-500", struct: "O=O" }
+                ],
+                products: [
+                    { name: "ซัลเฟอร์ไดออกไซด์ (SO₂)", count: 1, unitWeight: 64, tag: "SO₂", bg: "bg-yellow-700", struct: "O=S=O" }
+                ],
+                totalMass: 64,
+                desc: "เผากำมะถัน 32g กับออกซิเจน 32g ได้แก๊สซัลเฟอร์ไดออกไซด์ฉุน 64 กรัม"
+            },
+            {
+                name: "การระเบิดของดินปืน",
+                formula: "2KNO₃ + 3C + 1S ➔ 1K₂S + 1N₂ + 3CO₂",
+                application: "ส่วนผสมหลักของดินปืนโบราณสำหรับดอกไม้เพลิงและกระสุน",
+                reactants: [
+                    { name: "โพแทสเซียมไนเตรต (2KNO₃)", count: 2, unitWeight: 101, tag: "KNO₃", bg: "bg-violet-700", struct: "K⁺[NO₃]⁻" },
+                    { name: "คาร์บอน (3C)", count: 3, unitWeight: 12, tag: "C", bg: "bg-slate-900", struct: "Carbon" },
+                    { name: "กำมะถัน (S)", count: 1, unitWeight: 32, tag: "S", bg: "bg-yellow-500", struct: "Sulfur" }
+                ],
+                products: [
+                    { name: "โพแทสเซียมซัลไฟด์ (K₂S)", count: 1, unitWeight: 110, tag: "K₂S", bg: "bg-stone-700", struct: "K₂S" },
+                    { name: "ไนโตรเจน (N₂)", count: 1, unitWeight: 28, tag: "N₂", bg: "bg-blue-800", struct: "N≡N" },
+                    { name: "คาร์บอนไดออกไซด์ (3CO₂)", count: 3, unitWeight: 44, tag: "CO₂", bg: "bg-slate-700", struct: "O=C=O" }
+                ],
+                totalMass: 270,
+                desc: "ดินปืนทำปฏิกิริยาเผาไหม้อย่างรวดเร็ว เกิดก๊าซความดันสูงและเขม่า มวลรวม 270 กรัม"
+            }
+        ];
+
+        let currentReactionIdx = 0;
+
+        function switchTab(tabId) {
+            ['simulator', 'reactions'].forEach(id => {
+                const el = document.getElementById(`tab-${id}`);
+                const btn = document.getElementById(`btn-${id}`);
+                if (id === tabId) {
+                    el.classList.remove('hidden');
+                    btn.className = "px-3 py-1 rounded font-medium transition-all bg-white text-blue-700 shadow-sm text-xs";
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = "px-3 py-1 rounded font-medium transition-all text-blue-100 hover:text-white text-xs";
+                }
+            });
+        }
+
+        function renderReactionButtons() {
+            const container = document.getElementById('reaction-buttons-container');
+            let html = '';
+            reactions.forEach((rx, idx) => {
+                const isActive = idx === currentReactionIdx;
+                const btnClass = isActive 
+                    ? "px-2.5 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-md transition-all text-left flex flex-col justify-center border border-blue-500"
+                    : "px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all text-left flex flex-col justify-center border border-slate-200";
+                
+                html += `
+                    <button onclick="changeReaction(${idx})" id="rx-btn-${idx}" class="${btnClass}">
+                        <span class="text-[10px] text-black font-bold">ปฏิกิริยาที่ ${idx+1}</span>
+                        <span class="truncate">${rx.name}</span>
+                    </button>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderReactionsGrid() {
+            const container = document.getElementById('reactions-grid-container');
+            let html = '';
+            reactions.forEach((rx, idx) => {
+                const colors = ['blue', 'indigo', 'amber', 'purple', 'stone', 'teal', 'blue', 'pink', 'yellow', 'zinc'];
+                const col = colors[idx % colors.length];
+                
+                html += `
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between hover:border-${col}-500 transition-all cursor-pointer shadow-sm" onclick="selectReactionTab(${idx})">
+                        <div>
+                            <span class="bg-${col}-100 text-${col}-800 text-xs font-bold px-2.5 py-1 rounded-full mb-2 inline-block">ปฏิกิริยาที่ ${idx+1}</span>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1">${rx.name}</h3>
+                            <p class="text-[11px] text-slate-600 mb-2 font-mono font-bold">${rx.formula}</p>
+                            <p class="text-[11px] text-slate-500 mb-3 line-clamp-2"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>${rx.application}</p>
+                        </div>
+                        <div class="bg-white p-2.5 rounded-xl border border-slate-200 text-center font-mono text-[11px] font-bold text-${col}-600">
+                            มวลรวม: ${rx.totalMass}g
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function changeReaction(idx) {
+            currentReactionIdx = idx;
+            renderReactionButtons();
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const rx = reactions[currentReactionIdx];
+            
+            document.getElementById('chem-equation').innerText = rx.formula;
+            const formattedMass = Number(rx.totalMass).toFixed(2);
+            document.getElementById('mass-reactants').innerText = formattedMass;
+            document.getElementById('mass-products').innerText = formattedMass;
+            document.getElementById('daily-application-badge').innerHTML = `<span class="font-bold block mb-0.5 text-blue-700"><i class="fa-solid fa-lightbulb mr-1"></i> ประโยชน์ในชีวิตประจำวัน:</span> ${rx.application}`;
+
+            // Render Reactants list & visual with detailed molecular structures
+            let rDetailHtml = '';
+            let rVisualHtml = '';
+            rx.reactants.forEach(r => {
+                const totalW = (r.count * r.unitWeight).toFixed(1).replace('.0','');
+                rDetailHtml += `<div class="flex justify-between items-center"><span>${r.name}:</span><span class="font-bold text-slate-800">${r.count} โมเลกุล (${totalW} กรัม)</span></div>`;
+                for(let i=0; i<r.count; i++) {
+                    rVisualHtml += `
+                        <div class="flex flex-col items-center bg-white/90 border border-slate-300 rounded-xl p-2 m-1 shadow-sm">
+                            <span class="${r.bg} text-white text-[10px] px-2 py-0.5 rounded font-bold mb-1 shadow-sm">${r.tag}</span>
+                            <span class="text-[9px] font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${r.struct}</span>
+                        </div>
+                    `;
+                }
+            });
+            document.getElementById('reactants-detail-list').innerHTML = rDetailHtml;
+            document.getElementById('reactants-visual').innerHTML = rVisualHtml;
+
+            // Render Products list & visual with detailed molecular structures
+            let pDetailHtml = '';
+            let pVisualHtml = '';
+            rx.products.forEach(p => {
+                const totalW = (p.count * p.unitWeight).toFixed(1).replace('.0','');
+                pDetailHtml += `<div class="flex justify-between items-center"><span>${p.name}:</span><span class="font-bold text-slate-800">${p.count} โมเลกุล (${totalW} กรัม)</span></div>`;
+                for(let i=0; i<p.count; i++) {
+                    pVisualHtml += `
+                        <div class="flex flex-col items-center bg-white/90 border border-slate-300 rounded-xl p-2 m-1 shadow-sm">
+                            <span class="${p.bg} text-white text-[10px] px-2 py-0.5 rounded font-bold mb-1 shadow-sm">${p.tag}</span>
+                            <span class="text-[9px] font-mono text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">${p.struct}</span>
+                        </div>
+                    `;
+                }
+            });
+            document.getElementById('products-detail-list').innerHTML = pDetailHtml;
+            document.getElementById('products-visual').innerHTML = pVisualHtml;
+
+            document.getElementById('summary-text').innerText = `✅ มวลสารตั้งต้นซ้ายรวม (${rx.totalMass} กรัม) = มวลผลิตภัณฑ์ขวารวม (${rx.totalMass} กรัม) เป็นไปตามกฎทรงมวลและดุลสมการเคมี`;
+        }
+
+        function selectReactionTab(index) {
+            const rx = reactions[index];
+            document.getElementById('detail-title').innerText = `${index+1}. ${rx.name} (${rx.formula})`;
+            document.getElementById('detail-desc').innerText = rx.desc;
+            document.getElementById('detail-app').innerHTML = `<i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> ประโยชน์ในชีวิตประจำวัน: ${rx.application}`;
+            switchTab('simulator');
+            changeReaction(index);
+        }
+
+        window.onload = function() {
+            renderReactionButtons();
+            renderReactionsGrid();
+            updateSimulation();
+        };
+    </script>
+</body>
+</html>
