@@ -88,6 +88,15 @@
                 inset -10px -10px 25px rgba(0,0,0,0.1),
                 0 15px 30px rgba(0,0,0,0.15);
         }
+        
+        /* Hide scrollbar for horizontal list */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen flex flex-col">
@@ -122,11 +131,11 @@
                     <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md">
                         <i class="fa-solid fa-hand-pointer mr-1.5"></i> เลือกปฏิกิริยาเคมี 3D
                     </span>
-                    <span class="text-xs text-slate-500 font-medium">คลิกเพื่อจำลองการชั่งมวลและการทำปฏิกิริยา (30 รายการ)</span>
+                    <span class="text-xs text-slate-500 font-medium">คลิกหรือเลื่อนซ้าย-ขวาเพื่อเลือกปฏิกิริยา (30 รายการ)</span>
                 </div>
             </div>
-            <!-- Compact scrollable container -->
-            <div class="max-h-36 overflow-y-auto pr-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-1 custom-scrollbar relative z-10" id="reaction-buttons-container">
+            <!-- Horizontal scrollable container -->
+            <div class="flex overflow-x-auto gap-3 pb-2 pt-1 px-1 scrollbar-hide snap-x relative z-10" id="reaction-buttons-container">
                 <!-- Injected via JS -->
             </div>
         </div>
@@ -155,7 +164,7 @@
                     <div id="platform-reactants" class="w-full max-w-[280px] flex flex-col items-center relative z-30 transition-transform">
                         
                         <!-- 3D Closed Rectangular Chamber -->
-                        <div class="relative w-52 h-56 flex flex-col z-30 drop-shadow-xl -mb-4">
+                        <div class="relative w-52 h-56 flex flex-col z-30 drop-shadow-xl -mb-2">
                             <!-- Chamber Lid (Sealed) -->
                             <div id="lid-reactants" class="h-10 w-full bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 rounded-t-xl border-2 border-b-0 border-slate-400 flex flex-col items-center justify-center relative z-30 shadow-[0_5px_10px_rgba(0,0,0,0.2)] transition-all duration-700 ease-in-out">
                                 <div class="w-1/2 h-1.5 bg-slate-500/30 rounded-full shadow-inner mb-1"></div>
@@ -177,43 +186,71 @@
                             </div>
                         </div>
 
-                        <!-- Scale Tray -->
-                        <div class="w-[95%] h-12 bg-gradient-to-b from-slate-100 via-slate-200 to-slate-400 rounded-[50%] border-b-[6px] border-slate-400 shadow-[0_15px_25px_rgba(0,0,0,0.3)] relative z-20 flex items-center justify-center">
-                            <div class="w-[85%] h-8 rounded-[50%] border border-slate-300 shadow-inner bg-slate-100/50"></div>
+                        <!-- Scale Tray (Tanita Style: Large, flat, metal) -->
+                        <div class="w-[115%] h-10 bg-gradient-to-b from-[#f8f9fa] via-[#e9ecef] to-[#ced4da] rounded-md border-b-[4px] border-[#adb5bd] border-x border-[#dee2e6] shadow-[0_15px_25px_rgba(0,0,0,0.2)] relative z-20 flex items-center justify-center mt-2">
+                            <!-- Brushed metal texture -->
+                            <div class="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,rgba(255,255,255,0.4)_2px,rgba(255,255,255,0.4)_4px)] rounded-md opacity-40 pointer-events-none"></div>
                         </div>
                         
+                        <!-- Internal Neck Connection (Hidden inside base) -->
+                        <div class="w-20 h-4 bg-zinc-800 relative z-10 -mt-1 shadow-inner rounded-b-sm"></div>
                     </div>
 
-                    <!-- 3D Digital Scale Base (Static) -->
-                    <div class="w-full max-w-[280px] flex flex-col items-center relative z-10 perspective-container -mt-7">
-                        <!-- Realistic Scale Neck / Connection -->
-                        <div class="relative z-10 flex flex-col items-center w-full drop-shadow-md">
-                            <!-- Main Support Column (Metallic) -->
-                            <div class="w-14 h-12 bg-gradient-to-r from-slate-700 via-slate-300 to-slate-800 shadow-[inset_0_6px_10px_rgba(0,0,0,0.6)] border-x border-slate-500 relative overflow-hidden">
-                                <div class="w-3 h-full bg-white/60 blur-[2px] absolute left-2"></div>
-                                <div class="w-full h-px bg-slate-900/50 absolute top-2"></div>
-                                <div class="w-full h-px bg-slate-900/50 absolute top-5"></div>
-                                <div class="w-full h-px bg-slate-900/50 absolute top-8"></div>
-                            </div>
-                            <!-- Base Collar Transition -->
-                            <div class="w-24 h-5 bg-gradient-to-r from-blue-950 via-blue-800 to-blue-950 rounded-t-[50%] border-t-[2px] border-blue-400/70 shadow-[0_-2px_6px_rgba(0,0,0,0.4)] -mt-3 z-20"></div>
-                        </div>
-
-                        <!-- Scale Body 3D -->
-                        <div class="scale-body-3d w-full h-28 bg-gradient-to-b from-blue-400 via-blue-500 to-blue-700 rounded-2xl relative z-30 flex items-center justify-center border-b-[12px] border-blue-900 overflow-visible mt-[-4px]">
+                    <!-- 3D Digital Scale Base (Tanita Style - Static) -->
+                    <div class="w-full max-w-[300px] flex flex-col items-center relative z-10 -mt-3">
+                        
+                        <!-- Main Body Top block -->
+                        <div class="w-[88%] bg-[#e3e1d9] rounded-t-lg h-5 border-b border-black/5 shadow-[inset_0_2px_5px_rgba(255,255,255,0.8)] relative z-10"></div>
+                        
+                        <!-- Slanted front / Main lower body -->
+                        <div class="w-[96%] bg-gradient-to-b from-[#e3e1d9] to-[#d4d1c8] rounded-b-xl h-24 border-b-[8px] border-[#bab6aa] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.3)] relative z-20 flex flex-col items-center pt-2 px-3">
                             
-                            <!-- LCD Display 3D -->
-                            <div class="lcd-screen-3d w-3/4 h-14 bg-[#e8f5e9] border-[5px] border-slate-300 rounded-xl flex items-center justify-end px-4 shadow-inner relative overflow-hidden">
-                                <div class="absolute inset-0 bg-gradient-to-br from-black/5 to-transparent pointer-events-none"></div>
-                                <span class="font-mono text-3xl font-bold text-slate-800 tracking-wider drop-shadow-sm" id="mass-reactants">00.00</span>
-                                <span class="text-sm text-slate-500 font-bold ml-2 mt-1">g</span>
+                            <!-- Dark Control Panel Sticker/Inset -->
+                            <div class="w-full h-[70px] bg-gradient-to-r from-[#3a4454] via-[#2d3748] to-[#3a4454] rounded-[4px] border-2 border-slate-500/40 shadow-inner flex flex-col p-1.5 relative overflow-hidden">
+                                <!-- Top light reflection stripe -->
+                                <div class="w-full h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent absolute top-0 left-0"></div>
+                                
+                                <div class="flex justify-between items-start h-full">
+                                    <!-- Brand Logo -->
+                                    <div class="flex flex-col mt-1.5 ml-1 w-[20%]">
+                                        <span class="text-[10px] font-black text-white italic tracking-widest leading-none" style="font-family: Arial, sans-serif;">TANITA</span>
+                                        <span class="text-[6px] text-slate-300 font-bold tracking-widest mt-0.5">KD-200</span>
+                                    </div>
+                                    
+                                    <!-- LCD Screen Box -->
+                                    <div class="w-[52%] h-[38px] bg-[#abbfb0] border-[3px] border-[#8a9b8e] rounded-[3px] shadow-[inset_0_2px_6px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.2)] flex justify-end items-center pr-3 pl-1 mt-1 relative bg-[linear-gradient(0deg,rgba(0,0,0,0.02)1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)1px,transparent_1px)] bg-[size:2px_2px]">
+                                         <!-- Digital Text -->
+                                         <span id="mass-reactants" class="font-mono text-[20px] font-bold text-[#2d3748] tracking-wide leading-none mb-0.5 mr-2" style="text-shadow: 1px 1px 0px rgba(255,255,255,0.4);">00.00</span>
+                                         <span class="text-[9px] font-bold text-[#2d3748] absolute bottom-0.5 right-1">g</span>
+                                    </div>
+                                    
+                                    <!-- Buttons -->
+                                    <div class="w-[25%] flex gap-1.5 items-center mt-1.5 mr-1">
+                                        <!-- ON/TARE Button -->
+                                        <div class="w-1/2 h-[34px] bg-[#009de0] rounded-[2px] border-b-[3px] border-[#0070a0] flex flex-col items-center justify-center shadow-md cursor-default">
+                                            <span class="text-[6px] font-bold text-white leading-none mb-[1px]">ON</span>
+                                            <span class="text-[5px] font-bold text-white leading-none">TARE</span>
+                                        </div>
+                                        <!-- OFF Button -->
+                                        <div class="w-1/2 h-[34px] bg-[#2d2d2d] rounded-[2px] border-b-[3px] border-black border border-yellow-500/70 flex flex-col items-center justify-center shadow-md cursor-default">
+                                            <span class="text-[7px] font-bold text-yellow-500 mb-[1px]">OFF</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom specification text -->
+                                <div class="absolute bottom-1 left-2 w-full pr-4 flex justify-between text-[5px] font-bold text-slate-400 font-sans tracking-wide">
+                                    <span>MAX.2000g</span>
+                                    <span>0-2000g</span>
+                                    <span>d=2g</span>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Rubber Feet -->
-                        <div class="w-[80%] flex justify-between px-6 -mt-1 relative z-0">
-                            <div class="w-10 h-4 bg-gradient-to-b from-zinc-700 to-zinc-900 rounded-b-xl shadow-lg"></div>
-                            <div class="w-10 h-4 bg-gradient-to-b from-zinc-700 to-zinc-900 rounded-b-xl shadow-lg"></div>
+                        <div class="w-[65%] flex justify-between px-2 -mt-1 relative z-0">
+                            <div class="w-8 h-3.5 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded-b shadow-lg border-x border-zinc-900"></div>
+                            <div class="w-8 h-3.5 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded-b shadow-lg border-x border-zinc-900"></div>
                         </div>
                     </div>
 
@@ -224,14 +261,14 @@
             <div class="lg:col-span-2 flex flex-col items-center justify-center py-6 space-y-6 relative z-30">
                 
                 <!-- Toggle Open/Closed System -->
-                <div class="flex flex-col items-center justify-center bg-white/80 backdrop-blur-md px-3 py-2 rounded-2xl shadow-md border border-slate-200/60 w-full relative z-40">
-                    <div class="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wide">ตั้งค่าระบบการทดลอง</div>
-                    <div class="flex items-center space-x-3">
-                        <span id="label-open" class="text-[11px] font-bold text-slate-400 transition-colors duration-300"><i class="fa-solid fa-box-open mr-1"></i> ระบบเปิด</span>
-                        <button id="system-toggle" onclick="toggleSystem()" class="w-12 h-6 rounded-full bg-blue-500 relative transition-colors duration-300 focus:outline-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] flex items-center">
+                <div class="flex flex-col items-center justify-center bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl shadow-md border border-slate-200/60 w-max min-w-[170px] mx-auto relative z-40">
+                    <div class="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wide text-center">ตั้งค่าระบบการทดลอง</div>
+                    <div class="flex items-center space-x-2 whitespace-nowrap">
+                        <span id="label-open" class="text-[11px] font-bold text-slate-400 transition-colors duration-300"><i class="fa-solid fa-box-open mr-1"></i> เปิด</span>
+                        <button id="system-toggle" onclick="toggleSystem()" class="w-12 h-6 rounded-full bg-blue-500 relative transition-colors duration-300 focus:outline-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] flex items-center shrink-0 mx-1">
                             <div id="toggle-knob" class="w-5 h-5 bg-white rounded-full absolute left-0.5 transition-transform duration-300 transform translate-x-6 shadow-md border border-slate-100"></div>
                         </button>
-                        <span id="label-closed" class="text-[11px] font-bold text-blue-600 transition-colors duration-300"><i class="fa-solid fa-box mr-1"></i> ระบบปิด</span>
+                        <span id="label-closed" class="text-[11px] font-bold text-blue-600 transition-colors duration-300"><i class="fa-solid fa-box mr-1"></i> ปิด</span>
                     </div>
                 </div>
 
@@ -280,7 +317,7 @@
                     <div id="platform-products" class="w-full max-w-[280px] flex flex-col items-center relative z-30 transition-transform">
                         
                         <!-- 3D Closed Rectangular Chamber -->
-                        <div class="relative w-52 h-56 flex flex-col z-30 drop-shadow-xl -mb-4">
+                        <div class="relative w-52 h-56 flex flex-col z-30 drop-shadow-xl -mb-2">
                             <!-- Chamber Lid (Sealed) -->
                             <div id="lid-products" class="h-10 w-full bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 rounded-t-xl border-2 border-b-0 border-slate-400 flex flex-col items-center justify-center relative z-30 shadow-[0_5px_10px_rgba(0,0,0,0.2)] transition-all duration-700 ease-in-out">
                                 <div class="w-1/2 h-1.5 bg-slate-500/30 rounded-full shadow-inner mb-1"></div>
@@ -302,43 +339,71 @@
                             </div>
                         </div>
 
-                        <!-- Scale Tray -->
-                        <div class="w-[95%] h-12 bg-gradient-to-b from-slate-100 via-slate-200 to-slate-400 rounded-[50%] border-b-[6px] border-slate-400 shadow-[0_15px_25px_rgba(0,0,0,0.3)] relative z-20 flex items-center justify-center">
-                            <div class="w-[85%] h-8 rounded-[50%] border border-slate-300 shadow-inner bg-slate-100/50"></div>
+                        <!-- Scale Tray (Tanita Style: Large, flat, metal) -->
+                        <div class="w-[115%] h-10 bg-gradient-to-b from-[#f8f9fa] via-[#e9ecef] to-[#ced4da] rounded-md border-b-[4px] border-[#adb5bd] border-x border-[#dee2e6] shadow-[0_15px_25px_rgba(0,0,0,0.2)] relative z-20 flex items-center justify-center mt-2">
+                            <!-- Brushed metal texture -->
+                            <div class="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent,transparent_2px,rgba(255,255,255,0.4)_2px,rgba(255,255,255,0.4)_4px)] rounded-md opacity-40 pointer-events-none"></div>
                         </div>
                         
+                        <!-- Internal Neck Connection (Hidden inside base) -->
+                        <div class="w-20 h-4 bg-zinc-800 relative z-10 -mt-1 shadow-inner rounded-b-sm"></div>
                     </div>
 
-                    <!-- 3D Digital Scale Base (Static) -->
-                    <div class="w-full max-w-[280px] flex flex-col items-center relative z-10 perspective-container -mt-7">
-                        <!-- Realistic Scale Neck / Connection -->
-                        <div class="relative z-10 flex flex-col items-center w-full drop-shadow-md">
-                            <!-- Main Support Column (Metallic) -->
-                            <div class="w-14 h-12 bg-gradient-to-r from-slate-700 via-slate-300 to-slate-800 shadow-[inset_0_6px_10px_rgba(0,0,0,0.6)] border-x border-slate-500 relative overflow-hidden">
-                                <div class="w-3 h-full bg-white/60 blur-[2px] absolute left-2"></div>
-                                <div class="w-full h-px bg-slate-900/50 absolute top-2"></div>
-                                <div class="w-full h-px bg-slate-900/50 absolute top-5"></div>
-                                <div class="w-full h-px bg-slate-900/50 absolute top-8"></div>
-                            </div>
-                            <!-- Base Collar Transition -->
-                            <div class="w-24 h-5 bg-gradient-to-r from-blue-950 via-blue-800 to-blue-950 rounded-t-[50%] border-t-[2px] border-blue-400/70 shadow-[0_-2px_6px_rgba(0,0,0,0.4)] -mt-3 z-20"></div>
-                        </div>
-
-                        <!-- Scale Body 3D -->
-                        <div class="scale-body-3d w-full h-28 bg-gradient-to-b from-blue-400 via-blue-500 to-blue-700 rounded-2xl relative z-30 flex items-center justify-center border-b-[12px] border-blue-900 overflow-visible mt-[-4px]">
+                    <!-- 3D Digital Scale Base (Tanita Style - Static) -->
+                    <div class="w-full max-w-[300px] flex flex-col items-center relative z-10 -mt-3">
+                        
+                        <!-- Main Body Top block -->
+                        <div class="w-[88%] bg-[#e3e1d9] rounded-t-lg h-5 border-b border-black/5 shadow-[inset_0_2px_5px_rgba(255,255,255,0.8)] relative z-10"></div>
+                        
+                        <!-- Slanted front / Main lower body -->
+                        <div class="w-[96%] bg-gradient-to-b from-[#e3e1d9] to-[#d4d1c8] rounded-b-xl h-24 border-b-[8px] border-[#bab6aa] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.3)] relative z-20 flex flex-col items-center pt-2 px-3">
                             
-                            <!-- LCD Display 3D -->
-                            <div class="lcd-screen-3d w-3/4 h-14 bg-[#e8f5e9] border-[5px] border-slate-300 rounded-xl flex items-center justify-end px-4 shadow-inner relative overflow-hidden">
-                                <div class="absolute inset-0 bg-gradient-to-br from-black/5 to-transparent pointer-events-none"></div>
-                                <span class="font-mono text-3xl font-bold text-slate-800 tracking-wider drop-shadow-sm" id="mass-products">00.00</span>
-                                <span class="text-sm text-slate-500 font-bold ml-2 mt-1">g</span>
+                            <!-- Dark Control Panel Sticker/Inset -->
+                            <div class="w-full h-[70px] bg-gradient-to-r from-[#3a4454] via-[#2d3748] to-[#3a4454] rounded-[4px] border-2 border-slate-500/40 shadow-inner flex flex-col p-1.5 relative overflow-hidden">
+                                <!-- Top light reflection stripe -->
+                                <div class="w-full h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent absolute top-0 left-0"></div>
+                                
+                                <div class="flex justify-between items-start h-full">
+                                    <!-- Brand Logo -->
+                                    <div class="flex flex-col mt-1.5 ml-1 w-[20%]">
+                                        <span class="text-[10px] font-black text-white italic tracking-widest leading-none" style="font-family: Arial, sans-serif;">TANITA</span>
+                                        <span class="text-[6px] text-slate-300 font-bold tracking-widest mt-0.5">KD-200</span>
+                                    </div>
+                                    
+                                    <!-- LCD Screen Box -->
+                                    <div class="w-[52%] h-[38px] bg-[#abbfb0] border-[3px] border-[#8a9b8e] rounded-[3px] shadow-[inset_0_2px_6px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.2)] flex justify-end items-center pr-3 pl-1 mt-1 relative bg-[linear-gradient(0deg,rgba(0,0,0,0.02)1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)1px,transparent_1px)] bg-[size:2px_2px]">
+                                         <!-- Digital Text -->
+                                         <span id="mass-products" class="font-mono text-[20px] font-bold text-[#2d3748] tracking-wide leading-none mb-0.5 mr-2" style="text-shadow: 1px 1px 0px rgba(255,255,255,0.4);">00.00</span>
+                                         <span class="text-[9px] font-bold text-[#2d3748] absolute bottom-0.5 right-1">g</span>
+                                    </div>
+                                    
+                                    <!-- Buttons -->
+                                    <div class="w-[25%] flex gap-1.5 items-center mt-1.5 mr-1">
+                                        <!-- ON/TARE Button -->
+                                        <div class="w-1/2 h-[34px] bg-[#009de0] rounded-[2px] border-b-[3px] border-[#0070a0] flex flex-col items-center justify-center shadow-md cursor-default">
+                                            <span class="text-[6px] font-bold text-white leading-none mb-[1px]">ON</span>
+                                            <span class="text-[5px] font-bold text-white leading-none">TARE</span>
+                                        </div>
+                                        <!-- OFF Button -->
+                                        <div class="w-1/2 h-[34px] bg-[#2d2d2d] rounded-[2px] border-b-[3px] border-black border border-yellow-500/70 flex flex-col items-center justify-center shadow-md cursor-default">
+                                            <span class="text-[7px] font-bold text-yellow-500 mb-[1px]">OFF</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom specification text -->
+                                <div class="absolute bottom-1 left-2 w-full pr-4 flex justify-between text-[5px] font-bold text-slate-400 font-sans tracking-wide">
+                                    <span>MAX.2000g</span>
+                                    <span>0-2000g</span>
+                                    <span>d=2g</span>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Rubber Feet -->
-                        <div class="w-[80%] flex justify-between px-6 -mt-1 relative z-0">
-                            <div class="w-10 h-4 bg-gradient-to-b from-zinc-700 to-zinc-900 rounded-b-xl shadow-lg"></div>
-                            <div class="w-10 h-4 bg-gradient-to-b from-zinc-700 to-zinc-900 rounded-b-xl shadow-lg"></div>
+                        <div class="w-[65%] flex justify-between px-2 -mt-1 relative z-0">
+                            <div class="w-8 h-3.5 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded-b shadow-lg border-x border-zinc-900"></div>
+                            <div class="w-8 h-3.5 bg-gradient-to-b from-zinc-600 to-zinc-800 rounded-b shadow-lg border-x border-zinc-900"></div>
                         </div>
                     </div>
 
@@ -965,8 +1030,8 @@
             reactions.forEach((rx, idx) => {
                 const isActive = idx === currentReactionIdx;
                 const btnClass = isActive 
-                    ? "px-3 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-lg transform scale-105 transition-all text-left flex flex-col justify-center border border-blue-500 z-10 relative"
-                    : "px-3 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-blue-50 hover:-translate-y-1 transition-all text-left flex flex-col justify-center border border-slate-200 shadow-sm";
+                    ? "min-w-[160px] md:min-w-[200px] snap-center shrink-0 px-3 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-lg transform scale-105 transition-all text-left flex flex-col justify-center border border-blue-500 z-10 relative"
+                    : "min-w-[160px] md:min-w-[200px] snap-center shrink-0 px-3 py-2 rounded-xl text-xs font-bold bg-white text-slate-700 hover:bg-blue-50 hover:-translate-y-1 transition-all text-left flex flex-col justify-center border border-slate-200 shadow-sm";
                 
                 html += `
                     <button onclick="changeReaction(${idx})" id="rx-btn-${idx}" class="${btnClass}">
@@ -976,16 +1041,30 @@
                 `;
             });
             container.innerHTML = html;
+            
+            // Scroll to center the active button
+            setTimeout(() => {
+                const activeBtn = document.getElementById(`rx-btn-${currentReactionIdx}`);
+                if (activeBtn) {
+                    activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }, 50);
         }
 
-        function animateValue(obj, start, end, duration) {
+        function animateScale(idPrefix, startMass, endMass, duration) {
+            const textEl = document.getElementById(`mass-${idPrefix}`);
             let startTimestamp = null;
+            
             const step = (timestamp) => {
                 if (!startTimestamp) startTimestamp = timestamp;
                 const progress = Math.min((timestamp - startTimestamp) / duration, 1);
                 // easeOutQuart
                 const easeProgress = 1 - Math.pow(1 - progress, 4);
-                obj.innerHTML = (easeProgress * (end - start) + start).toFixed(2);
+                
+                const currentMass = (easeProgress * (endMass - startMass) + startMass);
+                // Format mass consistently to 2 decimal places for digital display
+                textEl.innerHTML = currentMass.toFixed(2);
+
                 if (progress < 1) {
                     window.requestAnimationFrame(step);
                 }
@@ -1079,11 +1158,9 @@
 
             actualProductMass = rx.totalMass - escapedMass;
 
-            // Animate Digital LCDs
-            const massR = document.getElementById('mass-reactants');
-            const massP = document.getElementById('mass-products');
-            animateValue(massR, 0, rx.totalMass, 1200);
-            animateValue(massP, 0, actualProductMass, 1200);
+            // Animate Analog Dial Needles and LCD text
+            animateScale('reactants', 0, rx.totalMass, 1200);
+            animateScale('products', 0, actualProductMass, 1200);
             
             // Trigger the tray press-down animation
             triggerScalePress();
